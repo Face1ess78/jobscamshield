@@ -135,5 +135,7 @@
     <div class="modal-backdrop hidden" id="forgot-modal" role="dialog" aria-modal="true" aria-labelledby="forgot-title"><div class="forgot-modal"><div class="modal-header"><div><span class="assistant-dot">↗</span><div><h2 id="forgot-title">Reset your password</h2><p>We’ll guide you to the next step.</p></div></div><button class="close-button" id="close-forgot" aria-label="Close password reset">×</button></div><form id="forgot-form" class="forgot-form"><label for="forgot-email">Email address</label><input id="forgot-email" type="email" autocomplete="email" placeholder="you@example.com" /><p id="forgot-error" class="field-error"></p><button class="auth-primary" type="submit">Send reset instructions</button><p class="forgot-footnote">Demo mode: no email is sent. A production app needs a secure password-reset service.</p></form></div></div>
 
     <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-auth.js"></script>
   </body>
 </html>
