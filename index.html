@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Job Scam Shield helps job seekers spot common recruitment scam signals before they respond." />
+    <title>Job Scam Shield — Safer job searching</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Main navigation">
+        <a class="brand" href="#dashboard" aria-label="Job Scam Shield home">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4.5 5v5.6c0 4.9 3.1 9.4 7.5 11.4 4.4-2 7.5-6.5 7.5-11.4V5L12 2Zm0 4.1 3.7 1.5v3c0 2.8-1.5 5.5-3.7 7-2.2-1.5-3.7-4.2-3.7-7v-3L12 6.1Zm-.9 3v2h-2v1.8h2v2h1.8v-2h2V11h-2V9h-1.8Z" /></svg></span>
+          <span>Job Scam <strong>Shield</strong></span>
+        </a>
+        <p class="sidebar-label">Protection center</p>
+        <nav class="nav-list">
+          <button class="nav-link active" data-route="dashboard"><span>⌂</span> Dashboard</button>
+          <button class="nav-link" data-route="analyze"><span>⌕</span> Scan a job</button>
+          <button class="nav-link" data-route="verify"><span>✓</span> Verify recruiter</button>
+          <button class="nav-link" data-route="history"><span>◷</span> Scan history</button>
+          <button class="nav-link" data-route="guide"><span>▤</span> Safety guide</button>
+          <button class="nav-link" data-route="auth"><span>◉</span> Account & security</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="privacy-note"><span>◉</span><div><strong>Your data stays here</strong><small>Scans are saved only in this browser.</small></div></div>
+          <button class="theme-button" id="theme-toggle" aria-label="Switch color theme"><span>☾</span> Dark appearance</button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="mobile-menu" id="mobile-menu" aria-label="Open menu">☰</button>
+          <div class="location-controls">
+            <label>Region <select id="region-select"><option value="Global">🌐 Global</option><option value="India">🇮🇳 India</option><option value="United States">🇺🇸 United States</option><option value="United Kingdom">🇬🇧 United Kingdom</option></select></label>
+            <label>Currency <select id="currency-select"><option value="USD">USD</option><option value="INR">INR</option><option value="GBP">GBP</option><option value="EUR">EUR</option></select></label>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-button" id="open-assistant" aria-label="Open Safety Advisor">✦</button>
+            <button class="profile-button" id="profile-button" aria-label="Open account and security"><span id="profile-initials">SJ</span><b id="profile-name">Student Job Seeker</b><i>⌄</i></button>
+          </div>
+        </header>
+
+        <section id="dashboard" class="view active" aria-labelledby="dashboard-title">
+          <div class="page-intro"><div><p class="eyebrow">Stay one step ahead</p><h1 id="dashboard-title">A safer way to search for work.</h1><p>Check suspicious job offers, recruiters, and links before you reply, pay, or share your details.</p></div><button class="primary-button" data-route="analyze">Scan a job offer <span>→</span></button></div>
+
+          <section class="hero-card">
+            <div class="hero-copy"><span class="hero-badge">◈ Protection active</span><h2>Know the signals.<br /><em>Trust your instincts.</em></h2><p>Job Scam Shield looks for the pressure tactics and impersonation patterns scammers use to target job seekers.</p><div class="hero-actions"><button class="button-light" data-route="analyze">Check an offer <span>→</span></button><button class="text-button on-dark" data-route="verify">Verify a recruiter</button></div></div>
+            <div class="hero-art" aria-hidden="true"><div class="orb orb-one"></div><div class="orb orb-two"></div><div class="shield-large"><svg viewBox="0 0 24 24"><path d="M12 1.8 3.9 5v5.9c0 5.2 3.3 10 8.1 12.1 4.8-2.1 8.1-6.9 8.1-12.1V5L12 1.8Zm0 4.3 4.1 1.6v3.2c0 3.3-1.7 6.2-4.1 7.7-2.4-1.5-4.1-4.4-4.1-7.7V7.7L12 6.1Zm-1 3.2v2h-2v1.8h2v2h2v-2h2v-1.8h-2v-2h-2Z" /></svg></div><div class="scan-line"></div></div>
+          </section>
+
+          <section class="alert-strip"><span class="alert-icon">!</span><p><strong>Remember:</strong> A legitimate employer will not ask you to pay a fee, buy equipment, or share an OTP to get hired.</p><button data-route="guide">See all safety rules →</button></section>
+
+          <section class="stat-grid" aria-label="Your scan statistics">
+            <article class="stat-card"><span class="stat-icon blue">⌕</span><div><b id="total-scans">0</b><p>Total scans</p></div></article>
+            <article class="stat-card"><span class="stat-icon red">!</span><div><b id="high-scans">0</b><p>High-risk alerts</p></div></article>
+            <article class="stat-card"><span class="stat-icon amber">△</span><div><b id="caution-scans">0</b><p>Needs caution</p></div></article>
+            <article class="stat-card"><span class="stat-icon green">✓</span><div><b id="low-scans">0</b><p>Low-risk scans</p></div></article>
+          </section>
+
+          <section class="content-grid dashboard-grid">
+            <article class="panel safety-rules"><div class="panel-heading"><div><p class="eyebrow">Start here</p><h2>Three essential safety rules</h2></div><button class="text-button" data-route="guide">All 20 rules →</button></div><ol class="rule-list"><li><span>01</span><div><b>Never pay to get hired.</b><p>Registration, training, equipment, and joining fees are all warning signs.</p></div></li><li><span>02</span><div><b>Keep financial information private.</b><p>No recruiter needs your OTP, PIN, password, or payment-card details.</p></div></li><li><span>03</span><div><b>Verify independently.</b><p>Find the employer’s official site yourself; don’t rely on a recruiter’s link.</p></div></li></ol></article>
+            <article class="panel recent-panel"><div class="panel-heading"><div><p class="eyebrow">Your activity</p><h2>Recent scans</h2></div><button class="text-button" data-route="history">View history →</button></div><div id="recent-scans" class="recent-list"><div class="empty-state compact"><span>◷</span><p>No scans yet.<br />Your results will appear here.</p></div></div></article>
+          </section>
+
+          <section class="preset-section"><div class="panel-heading"><div><p class="eyebrow">Practice safely</p><h2>Try a sample scenario</h2></div><p class="subtle">See how the scanner identifies common tactics.</p></div><div class="preset-grid">
+            <button class="preset-card" data-preset="fee"><span class="preset-icon red">!</span><div><b>Upfront-fee offer</b><p>A registration payment is requested before joining.</p></div><i>→</i></button>
+            <button class="preset-card" data-preset="impersonation"><span class="preset-icon amber">⌁</span><div><b>Brand impersonation</b><p>A big-name employer uses a public email account.</p></div><i>→</i></button>
+            <button class="preset-card" data-preset="legitimate"><span class="preset-icon green">✓</span><div><b>Professional listing</b><p>A job post with ordinary hiring details to compare.</p></div><i>→</i></button>
+          </div></section>
+        </section>
+
+        <section id="analyze" class="view" aria-labelledby="analyze-title">
+          <div class="page-intro compact-intro"><div><p class="eyebrow">Recruitment message scanner</p><h1 id="analyze-title">Check a job offer before you respond.</h1><p>Paste the full message, email, or listing. The more context you provide, the more useful the result.</p></div></div>
+          <div class="scanner-layout"><article class="scan-panel"><div class="scan-tabs" role="tablist"><button class="scan-tab active" data-input="text">Paste text</button><button class="scan-tab" data-input="url">Check a link</button></div><div class="input-wrap" id="text-input-wrap"><label for="job-text">Job offer or recruiter message</label><textarea id="job-text" maxlength="12000" placeholder="Paste the full job post, email, or chat message here…"></textarea><div class="input-footer"><span id="character-count">0 / 12,000 characters</span><button class="clear-button" id="clear-text">Clear</button></div></div><div class="input-wrap hidden" id="url-input-wrap"><label for="job-url">Job listing link</label><input id="job-url" type="url" placeholder="https://example.com/jobs/role" /><p class="field-help">The demo checks the link structure. It does not visit the website or confirm who owns it.</p></div><div class="scan-options"><label for="industry-select">Industry <select id="industry-select"><option>General</option><option>Technology</option><option>Finance</option><option>Healthcare</option><option>Education</option><option>Government</option></select></label><span class="privacy-inline">◉ Sensitive banking details are redacted from your saved scan.</span></div><div class="scan-actions"><button class="secondary-button" id="load-example">Load example</button><button class="primary-button large" id="analyze-button">Analyze this offer <span>→</span></button></div></article>
+            <aside class="scanner-aside"><div class="aside-card"><span class="aside-icon">✦</span><h3>What we check</h3><ul><li>Fee and payment requests</li><li>Fake company or recruiter emails</li><li>High pay for low-effort work</li><li>Pressure, urgency, and unusual links</li><li>Requests for OTPs or credentials</li></ul></div><div class="aside-card muted-card"><span>◎</span><p><b>This is a risk check, not proof.</b> Always verify an employer through official channels before sending documents or money.</p></div></aside>
+          </div>
+        </section>
+
+        <section id="results" class="view" aria-labelledby="results-title">
+          <div class="results-top"><button class="back-button" data-route="analyze">← Back to scanner</button><div class="result-actions"><button class="secondary-button" id="save-result">Save scan</button><button class="secondary-button" id="print-result">Print / export</button></div></div>
+          <div id="result-content"></div>
+        </section>
+
+        <section id="verify" class="view" aria-labelledby="verify-title">
+          <div class="page-intro compact-intro"><div><p class="eyebrow">Recruiter & domain verifier</p><h1 id="verify-title">Check whether the details line up.</h1><p>Enter the details you were given. We’ll surface mismatches and common impersonation warning signs.</p></div></div>
+          <div class="verify-layout"><form id="verify-form" class="panel verify-form"><div class="form-grid"><label>Company name<input id="company-name" placeholder="Example: Microsoft" /></label><label>Recruiter’s name<input id="recruiter-name" placeholder="Optional" /></label><label>Recruiter email<input id="recruiter-email" type="email" placeholder="name@company.com" /></label><label>Company website<input id="company-website" placeholder="https://company.com" /></label><label class="full-width">Job-posting link<input id="posting-url" placeholder="Optional: job-board or careers link" /></label></div><p class="field-help">At least one field is required. This tool uses local checks only; it does not look up a company online.</p><button class="primary-button" type="submit">Check details <span>→</span></button></form><aside id="verify-result" class="verify-placeholder"><span>⌁</span><h3>Enter the recruiter details</h3><p>Results will highlight domain and channel risks you should investigate yourself.</p></aside></div>
+        </section>
+
+        <section id="history" class="view" aria-labelledby="history-title">
+          <div class="page-intro compact-intro history-title"><div><p class="eyebrow">Saved privately in this browser</p><h1 id="history-title">Your scan history</h1><p>Review past checks or remove them when you no longer need them.</p></div><button class="secondary-button danger-button" id="clear-history">Clear all history</button></div><div id="history-list" class="history-list"></div>
+        </section>
+
+        <section id="guide" class="view" aria-labelledby="guide-title">
+          <div class="page-intro compact-intro"><div><p class="eyebrow">Student safety guide</p><h1 id="guide-title">How to spot a job scam.</h1><p>Use these practical rules whenever a job opportunity feels rushed, vague, or too good to be true.</p></div></div><section class="guide-hero"><div><span>◈</span><h2>Pause before you pay, click, or share.</h2><p>Scammers thrive on urgency. A real employer will give you time to verify the offer.</p></div><button class="button-light" data-route="analyze">Check an offer →</button></section><div class="guide-grid" id="guide-grid"></div>
+        </section>
+
+        <section id="auth" class="view auth-view" aria-labelledby="auth-title">
+          <div class="auth-shell">
+            <aside class="auth-showcase">
+              <div class="auth-brand"><span class="auth-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4.5 5v5.6c0 4.9 3.1 9.4 7.5 11.4 4.4-2 7.5-6.5 7.5-11.4V5L12 2Zm0 4.1 3.7 1.5v3c0 2.8-1.5 5.5-3.7 7-2.2-1.5-3.7-4.2-3.7-7v-3L12 6.1Zm-.9 3v2h-2v1.8h2v2h1.8v-2h2V11h-2V9h-1.8Z" /></svg></span><div><b>JobShield AI</b><small>Cybersecurity Intelligence</small></div></div>
+              <div class="auth-showcase-copy"><p class="eyebrow">Safer job searching</p><h1>Before You Apply,<br /><em>Check the Job.</em></h1><p>AI-inspired heuristics help students and job seekers notice employment-fraud patterns before they respond, pay, or share personal data.</p></div>
+              <div class="auth-pipeline" aria-label="How JobShield AI works"><article><span>01</span><div><b>Job Offer / Message</b><p>Paste recruitment text, an email, or a link.</p></div></article><article><span>02</span><div><b>Analysis & Heuristics</b><p>Spot fee demands, fake checks, task scams, and webmail flags.</p></div></article><article><span>03</span><div><b>Risk Detection & Defense</b><p>Get a transparent score and practical reporting steps.</p></div></article></div>
+              <div class="zero-credential"><span>◉</span><p><b>Zero job-search credentials collected.</b> No national IDs, OTPs, banking information, or recruiter passwords are stored or required. This local demo never saves account passwords.</p></div>
+            </aside>
+            <div class="auth-form-area">
+              <div class="mobile-auth-brand"><span class="auth-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4.5 5v5.6c0 4.9 3.1 9.4 7.5 11.4 4.4-2 7.5-6.5 7.5-11.4V5L12 2Zm0 4.1 3.7 1.5v3c0 2.8-1.5 5.5-3.7 7-2.2-1.5-3.7-4.2-3.7-7v-3L12 6.1Zm-.9 3v2h-2v1.8h2v2h1.8v-2h2V11h-2V9h-1.8Z" /></svg></span><div><b>JobShield AI</b><small>Cybersecurity Intelligence</small></div></div>
+              <p class="mobile-auth-headline">Before you apply, check the job.</p>
+              <article class="auth-card">
+                <div class="auth-card-heading"><p class="eyebrow">Your protection center</p><h1 id="auth-title">Welcome back</h1><p id="auth-subtitle">Sign in to keep your job-safety checks in one place.</p></div>
+                <div class="auth-tabs" role="tablist" aria-label="Authentication mode"><button class="auth-tab active" type="button" data-auth-mode="signin" role="tab" aria-selected="true">Sign In</button><button class="auth-tab" type="button" data-auth-mode="signup" role="tab" aria-selected="false">Create Account</button></div>
+                <div id="auth-alert" class="auth-alert hidden" role="alert"></div>
+                <form id="auth-form" novalidate>
+                  <div class="auth-field signup-field hidden"><label for="auth-name">Full name</label><input id="auth-name" autocomplete="name" placeholder="Your name" /><p class="field-error" id="auth-name-error"></p></div>
+                  <div class="auth-field"><label for="auth-email">Email address</label><input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" /><p class="field-error" id="auth-email-error"></p></div>
+                  <div class="auth-field"><label for="auth-password">Password</label><div class="password-input"><input id="auth-password" type="password" autocomplete="current-password" placeholder="At least 6 characters" /><button class="password-toggle" type="button" data-password-target="auth-password" aria-label="Show password"><span aria-hidden="true">◉</span></button></div><p class="field-error" id="auth-password-error"></p></div>
+                  <div class="auth-field signup-field hidden"><label for="auth-confirm-password">Confirm password</label><div class="password-input"><input id="auth-confirm-password" type="password" autocomplete="new-password" placeholder="Enter the password again" /><button class="password-toggle" type="button" data-password-target="auth-confirm-password" aria-label="Show password"><span aria-hidden="true">◉</span></button></div><p class="field-error" id="auth-confirm-error"></p></div>
+                  <div class="signin-options"><label class="remember-option"><input id="remember-me" type="checkbox" /> <span>Remember me</span></label><button class="forgot-button" id="open-forgot" type="button">Forgot password?</button></div>
+                  <button class="auth-primary" id="auth-submit" type="submit"><span id="auth-submit-label">Sign In</span><span class="spinner hidden" id="auth-spinner" aria-hidden="true"></span></button>
+                </form>
+                <div class="auth-divider"><span></span><b>OR</b><span></span></div>
+                <button class="google-button" id="google-auth" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.35 12.23c0-.71-.06-1.23-.2-1.77H12v3.45h5.37c-.11.86-.72 2.16-2.08 3.03l-.02.12 3.02 2.34.21.02c1.93-1.77 2.85-4.38 2.85-7.19Z"/><path fill="#34A853" d="M12 21.75c2.63 0 4.84-.87 6.45-2.34l-3.07-2.48c-.82.57-1.92.97-3.38.97-2.58 0-4.77-1.7-5.55-4.05l-.11.01-3.14 2.43-.04.1A9.75 9.75 0 0 0 12 21.75Z"/><path fill="#FBBC05" d="M6.45 13.85A5.85 5.85 0 0 1 6.15 12c0-.64.11-1.26.29-1.85v-.13L3.26 7.55l-.11.05A9.74 9.74 0 0 0 2.25 12c0 1.57.37 3.06.9 4.4l3.3-2.55Z"/><path fill="#EA4335" d="M12 6.1c1.84 0 3.08.8 3.79 1.47l2.77-2.7C16.83 3.25 14.63 2.25 12 2.25a9.74 9.74 0 0 0-8.84 5.35l3.29 2.55C7.24 7.8 9.42 6.1 12 6.1Z"/></svg> Continue with Google</button>
+                <div class="auth-security-notice"><span>!</span><p><b>Security Notice:</b> Never share your password, OTP, UPI/ATM PIN, banking credentials, or unredacted government IDs with anyone claiming to be a recruiter.</p></div>
+              </article>
+              <p class="auth-footer">AI-generated risk assessments are educational. Always verify job offers with official company directories.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="modal-backdrop hidden" id="assistant-modal" role="dialog" aria-modal="true" aria-labelledby="assistant-title"><div class="assistant-modal"><div class="modal-header"><div><span class="assistant-dot">✦</span><div><h2 id="assistant-title">Safety Advisor</h2><p>Practical guidance for suspicious offers</p></div></div><button class="close-button" id="close-assistant" aria-label="Close Safety Advisor">×</button></div><div class="assistant-messages" id="assistant-messages"><div class="bot-message">Hi — I can explain common recruitment scam signals. Choose a topic below or ask a short question.</div></div><div class="quick-questions"><button>Why do scammers ask for fees?</button><button>What is a task scam?</button><button>Can an employer ask for my OTP?</button></div><form id="assistant-form" class="assistant-compose"><input id="assistant-input" placeholder="Ask about a red flag…" /><button type="submit" aria-label="Send message">↑</button></form></div></div>
+    <div class="modal-backdrop hidden" id="forgot-modal" role="dialog" aria-modal="true" aria-labelledby="forgot-title"><div class="forgot-modal"><div class="modal-header"><div><span class="assistant-dot">↗</span><div><h2 id="forgot-title">Reset your password</h2><p>We’ll guide you to the next step.</p></div></div><button class="close-button" id="close-forgot" aria-label="Close password reset">×</button></div><form id="forgot-form" class="forgot-form"><label for="forgot-email">Email address</label><input id="forgot-email" type="email" autocomplete="email" placeholder="you@example.com" /><p id="forgot-error" class="field-error"></p><button class="auth-primary" type="submit">Send reset instructions</button><p class="forgot-footnote">Demo mode: no email is sent. A production app needs a secure password-reset service.</p></form></div></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
