@@ -1,0 +1,36 @@
+name: Integrate Supabase Auth
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject Supabase scripts into index
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          marker = '<script src="supabase-auth.js"></script>'
+          if marker not in text:
+              injection = '''    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n    <script src="supabase-auth.js"></script>\n'''
+              text = text.replace('    <script src="script.js"></script>\n', '    <script src="script.js"></script>\n' + injection)
+              p.write_text(text, encoding='utf-8')
+
+      - name: Commit integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Wire Supabase auth into frontend"
+          git push
