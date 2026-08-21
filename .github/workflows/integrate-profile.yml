@@ -1,0 +1,33 @@
+name: Integrate profile page
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate-profile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Inject profile script
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          marker = '<script src="profile.js"></script>'
+          if marker not in text:
+              text = text.replace('</body>', '    <script src="profile.js"></script>\n  </body>')
+              p.write_text(text, encoding='utf-8')
+      - name: Commit integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Add JobScamShield profile page"
+          git push
