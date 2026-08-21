@@ -15,16 +15,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject Supabase scripts into index
+      - name: Inject Supabase auth scripts
         shell: python
         run: |
           from pathlib import Path
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
-          marker = '<script src="supabase-auth.js"></script>'
-          if marker not in text:
-              injection = '''    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n    <script src="supabase-auth.js"></script>\n'''
-              text = text.replace('    <script src="script.js"></script>\n', '    <script src="script.js"></script>\n' + injection)
+          scripts = '''    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n    <script src="supabase-auth.js"></script>\n'''
+          if 'src="supabase-auth.js"' not in text:
+              marker = '    <script src="script.js"></script>'
+              if marker not in text:
+                  raise SystemExit('Could not find script.js in index.html')
+              text = text.replace(marker, marker + '\n' + scripts.rstrip(), 1)
               p.write_text(text, encoding='utf-8')
 
       - name: Commit integration
@@ -32,5 +34,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git diff --cached --quiet || git commit -m "Wire Supabase auth into frontend"
+          git diff --cached --quiet || git commit -m "Enable Supabase authentication"
           git push
