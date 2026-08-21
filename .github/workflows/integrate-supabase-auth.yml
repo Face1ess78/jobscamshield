@@ -10,49 +10,49 @@ permissions:
 
 jobs:
   integrate-auth:
-    # The workflow may create one follow-up commit. Do not run the integration again
-    # for that bot commit; this prevents a recursive workflow loop.
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Inject Supabase client and auth integration
+      - name: Ensure Supabase scripts are loaded
         shell: python
         run: |
           from pathlib import Path
-
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-
-          client = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>'
-          auth = '<script src="supabase-auth.js"></script>'
-
-          if 'src="supabase-auth.js"' in text:
-              print('Supabase auth script already present; nothing to change.')
-          else:
-              block = f'    {client}\n    {auth}'
+          scripts = [
+              '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>',
+              '<script src="supabase-auth.js"></script>',
+              '<script src="cloud-sync.js"></script>'
+          ]
+          missing = [s for s in scripts if s not in text]
+          if missing:
               marker = '</body>'
               if marker not in text:
                   raise SystemExit('Could not find </body> in index.html')
-              text = text.replace(marker, block + '\n  ' + marker, 1)
+              block = '\n'.join('  ' + s for s in missing)
+              text = text.replace(marker, block + '\n' + marker, 1)
               path.write_text(text, encoding='utf-8')
-              print('Supabase scripts injected into index.html.')
+              print('Injected missing Supabase scripts:', len(missing))
+          else:
+              print('All Supabase scripts are already loaded.')
 
-      - name: Validate integration
+      - name: Validate Supabase integration
         shell: python
         run: |
           from pathlib import Path
           text = Path('index.html').read_text(encoding='utf-8')
           required = [
               'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
-              'src="supabase-auth.js"'
+              'src="supabase-auth.js"',
+              'src="cloud-sync.js"'
           ]
           missing = [item for item in required if item not in text]
           if missing:
-              raise SystemExit('Missing required Supabase integration: ' + ', '.join(missing))
-          print('Supabase authentication integration validated.')
+              raise SystemExit('Missing required integration: ' + ', '.join(missing))
+          print('Supabase authentication and cloud synchronization validated.')
 
       - name: Commit integration if changed
         run: |
@@ -62,6 +62,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "fix: enable Supabase authentication [skip ci]"
+            git commit -m "fix: enable Supabase auth and cloud scan sync [skip ci]"
             git push
           fi
