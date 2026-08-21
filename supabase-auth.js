@@ -1,239 +1,27 @@
 (() => {
   'use strict';
-
-  // Safe to expose in a browser: this is the Supabase publishable/anon key.
-  const SUPABASE_URL = 'https://ltdmawmtnmlfmfhiwwow.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_n_WZP0LdaRzFy_3v-xYuug_EnAsMxMM';
-
-  if (!window.supabase?.createClient) {
-    console.error('Supabase client library did not load.');
-    return;
-  }
-
-  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-  });
-
-  const $ = (selector) => document.querySelector(selector);
-  const $$ = (selector) => [...document.querySelectorAll(selector)];
-
-  function toast(message) {
-    const el = $('#toast');
-    if (!el) return;
-    el.textContent = message;
-    el.classList.add('show');
-    clearTimeout(toast.timer);
-    toast.timer = setTimeout(() => el.classList.remove('show'), 3200);
-  }
-
-  function alertBox(message, type = 'error') {
-    const el = $('#auth-alert');
-    if (!el) return;
-    el.textContent = message;
-    el.className = `auth-alert ${type}`;
-  }
-
-  function clearAlert() {
-    const el = $('#auth-alert');
-    if (el) { el.textContent = ''; el.className = 'auth-alert hidden'; }
-  }
-
-  function setLoading(loading) {
-    const button = $('#auth-submit');
-    const spinner = $('#auth-spinner');
-    const label = $('#auth-submit-label');
-    if (!button) return;
-    button.disabled = loading;
-    if (spinner) spinner.classList.toggle('hidden', !loading);
-    if (label && !loading) label.textContent = $('.auth-tab.active')?.dataset.authMode === 'signup' ? 'Create Account' : 'Sign In';
-  }
-
-  function setMode(mode) {
-    $$('.auth-tab').forEach(tab => {
-      const active = tab.dataset.authMode === mode;
-      tab.classList.toggle('active', active);
-      tab.setAttribute('aria-selected', String(active));
-    });
-    $$('.signup-field').forEach(el => el.classList.toggle('hidden', mode !== 'signup'));
-    const title = $('#auth-title');
-    const subtitle = $('#auth-subtitle');
-    const label = $('#auth-submit-label');
-    const password = $('#auth-password');
-    if (title) title.textContent = mode === 'signup' ? 'Create your account' : 'Welcome back';
-    if (subtitle) subtitle.textContent = mode === 'signup' ? 'Create a secure account to keep your job-safety checks in one place.' : 'Sign in to keep your job-safety checks in one place.';
-    if (label) label.textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
-    if (password) password.autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
-    clearAlert();
-  }
-
-  function initials(name, email) {
-    const source = (name || email || 'JS').trim();
-    const parts = source.split(/\s+/).filter(Boolean);
-    if (parts.length > 1) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    return source.slice(0, 2).toUpperCase();
-  }
-
-  function updateProfile(user) {
-    const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Job Seeker';
-    const profileName = $('#profile-name');
-    const profileInitials = $('#profile-initials');
-    if (profileName) profileName.textContent = name;
-    if (profileInitials) profileInitials.textContent = initials(name, user?.email);
-  }
-
-  function showSignedOutProfile() {
-    const profileName = $('#profile-name');
-    const profileInitials = $('#profile-initials');
-    if (profileName) profileName.textContent = 'Guest';
-    if (profileInitials) profileInitials.textContent = 'G';
-  }
-
-  function goDashboard() {
-    const dashboard = document.querySelector('[data-route="dashboard"]');
-    if (dashboard) dashboard.click();
-  }
-
-  async function handleAuthSubmit(event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    clearAlert();
-
-    const mode = $('.auth-tab.active')?.dataset.authMode || 'signin';
-    const name = $('#auth-name')?.value.trim() || '';
-    const email = $('#auth-email')?.value.trim() || '';
-    const password = $('#auth-password')?.value || '';
-    const confirm = $('#auth-confirm-password')?.value || '';
-
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return alertBox('Please enter a valid email address.');
-    if (password.length < 6) return alertBox('Password must be at least 6 characters.');
-    if (mode === 'signup' && !name) return alertBox('Please enter your full name.');
-    if (mode === 'signup' && password !== confirm) return alertBox('Passwords do not match.');
-
-    setLoading(true);
-    try {
-      if (mode === 'signup') {
-        const { data, error } = await client.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: name },
-            emailRedirectTo: window.location.origin + window.location.pathname
-          }
-        });
-        if (error) throw error;
-        if (data.session) {
-          updateProfile(data.user);
-          alertBox('Account created successfully. You are now signed in.', 'success');
-          toast(`Welcome, ${name}.`);
-          setTimeout(goDashboard, 700);
-        } else {
-          alertBox('Account created. Check your email to verify your address before signing in.', 'success');
-        }
-      } else {
-        const { data, error } = await client.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        updateProfile(data.user);
-        alertBox('Signed in successfully.', 'success');
-        toast(`Welcome back, ${data.user.user_metadata?.full_name || email}.`);
-        setTimeout(goDashboard, 500);
-      }
-    } catch (error) {
-      console.error('Supabase authentication error:', error);
-      const message = String(error?.message || 'Authentication failed. Please try again.');
-      if (/invalid login credentials/i.test(message)) alertBox('Incorrect email or password.');
-      else if (/user already registered/i.test(message)) alertBox('An account with this email already exists. Try signing in.');
-      else alertBox(message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleForgotSubmit(event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    const email = $('#forgot-email')?.value.trim() || '';
-    const errorEl = $('#forgot-error');
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      if (errorEl) errorEl.textContent = 'Enter a valid email address.';
-      return;
-    }
-    if (errorEl) errorEl.textContent = '';
-    try {
-      const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + window.location.pathname
-      });
-      if (error) throw error;
-      $('#forgot-modal')?.classList.add('hidden');
-      alertBox('Password reset instructions have been sent to your email.', 'success');
-      toast('Password reset email sent.');
-    } catch (error) {
-      if (errorEl) errorEl.textContent = error.message || 'Unable to send reset instructions.';
-    }
-  }
-
-  async function handleGoogle(event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    clearAlert();
-    try {
-      const { error } = await client.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin + window.location.pathname }
-      });
-      if (error) throw error;
-    } catch (error) {
-      alertBox(error.message || 'Google sign-in is unavailable. Enable Google in Supabase Authentication → Providers.');
-    }
-  }
-
-  function addLogoutButton() {
-    if ($('#supabase-logout')) return;
-    const actions = document.querySelector('.topbar-actions');
-    if (!actions) return;
-    const button = document.createElement('button');
-    button.id = 'supabase-logout';
-    button.className = 'secondary-button';
-    button.type = 'button';
-    button.textContent = 'Log out';
-    button.style.display = 'none';
-    button.addEventListener('click', async () => {
-      const { error } = await client.auth.signOut();
-      if (error) return alertBox(error.message);
-      showSignedOutProfile();
-      toast('You have been logged out.');
-      document.querySelector('[data-route="auth"]')?.click();
-    });
-    actions.prepend(button);
-  }
-
-  function syncAuthUI(session) {
-    const logout = $('#supabase-logout');
-    if (logout) logout.style.display = session ? '' : 'none';
-    if (session?.user) updateProfile(session.user); else showSignedOutProfile();
-  }
-
-  function installCaptureHandlers() {
-    // Capture phase runs before the original local-demo handlers in script.js.
-    document.addEventListener('submit', event => {
-      if (event.target?.id === 'auth-form') handleAuthSubmit(event);
-      if (event.target?.id === 'forgot-form') handleForgotSubmit(event);
-    }, true);
-
-    document.addEventListener('click', event => {
-      const authTab = event.target.closest?.('.auth-tab');
-      if (authTab) setMode(authTab.dataset.authMode);
-      const google = event.target.closest?.('#google-auth');
-      if (google) handleGoogle(event);
-    }, true);
-  }
-
-  async function init() {
-    addLogoutButton();
-    installCaptureHandlers();
-    const { data } = await client.auth.getSession();
-    syncAuthUI(data.session);
-    client.auth.onAuthStateChange((_event, session) => syncAuthUI(session));
-  }
-
+  const SUPABASE_URL='https://ltdmawmtnmlfmfhiwwow.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY='sb_publishable_n_WZP0LdaRzFy_3v-xYuug_EnAsMxMM';
+  if(!window.supabase?.createClient){console.error('Supabase client library did not load.');return;}
+  const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  function toast(m){const e=$('#toast');if(!e)return;e.textContent=m;e.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.classList.remove('show'),3200)}
+  function alertBox(m,type='error'){const e=$('#auth-alert');if(e){e.textContent=m;e.className=`auth-alert ${type}`}}
+  function clearAlert(){const e=$('#auth-alert');if(e){e.textContent='';e.className='auth-alert hidden'}}
+  function setLoading(v){const b=$('#auth-submit'),s=$('#auth-spinner');if(!b)return;b.disabled=v;if(s)s.classList.toggle('hidden',!v)}
+  function setMode(mode){$$('.auth-tab').forEach(t=>{const a=t.dataset.authMode===mode;t.classList.toggle('active',a);t.setAttribute('aria-selected',String(a))});$$('.signup-field').forEach(e=>e.classList.toggle('hidden',mode!=='signup'));const t=$('#auth-title'),sub=$('#auth-subtitle'),l=$('#auth-submit-label'),p=$('#auth-password');if(t)t.textContent=mode==='signup'?'Create your account':'Welcome back';if(sub)sub.textContent=mode==='signup'?'Create a secure account to keep your job-safety checks in one place.':'Sign in to keep your job-safety checks in one place.';if(l)l.textContent=mode==='signup'?'Create Account':'Sign In';if(p)p.autocomplete=mode==='signup'?'new-password':'current-password';clearAlert()}
+  function initials(name,email){const s=(name||email||'JS').trim(),p=s.split(/\s+/).filter(Boolean);return(p.length>1?p[0][0]+p[p.length-1][0]:s.slice(0,2)).toUpperCase()}
+  function nav(route){document.querySelector(`[data-route="${route}"]`)?.click()}
+  function updateProfile(user){const name=user?.user_metadata?.full_name||user?.user_metadata?.name||user?.email?.split('@')[0]||'Job Seeker';const n=$('#profile-name'),i=$('#profile-initials');if(n)n.textContent=user?'My account':'Sign in';if(i)i.textContent=user?initials(name,user.email):'↗';const privacy=document.querySelector('.privacy-note small');if(privacy)privacy.textContent=user?'Cloud history protected by your account.':'Saved scans stay in this browser until you sign in.';const account=document.querySelector('[data-route="auth"]');if(account)account.innerHTML=`<span>◉</span> ${user?'Account & security':'Sign in / register'}`}
+  function authCard(){let card=$('#signed-in-card');if(card)return card;const form=$('#auth-form');if(!form)return null;card=document.createElement('div');card.id='signed-in-card';card.className='signed-in-card hidden';card.innerHTML=`<div class="signed-in-icon">✓</div><p class="eyebrow">ACCOUNT ACTIVE</p><h2>You're signed in.</h2><p class="signed-in-email" id="signed-in-email"></p><p class="signed-in-copy">Your profile, saved scans and account settings are available from your dashboard.</p><div class="signed-in-actions"><button class="primary-button" id="signed-dashboard">Go to dashboard →</button><button class="secondary-button" id="signed-profile">Open my profile</button><button class="text-button danger-button" id="signed-logout">Log out</button></div>`;form.parentNode.insertBefore(card,form);$('#signed-dashboard')?.addEventListener('click',()=>nav('dashboard'));$('#signed-profile')?.addEventListener('click',()=>nav('profile'));$('#signed-logout')?.addEventListener('click',logout);return card}
+  function syncSignedInCard(user){const card=authCard(),form=$('#auth-form'),google=$('#google-auth');if(!card)return;if(user){card.classList.remove('hidden');if(form)form.classList.add('hidden');if(google)google.closest('button')?.classList.add('hidden');const e=$('#signed-in-email');if(e)e.textContent=user.email||'Authenticated account'}else{card.classList.add('hidden');if(form)form.classList.remove('hidden');if(google)google.closest('button')?.classList.remove('hidden')}}
+  async function logout(){const {error}=await client.auth.signOut();if(error){alertBox(error.message);return}toast('You have been logged out.');syncAuthUI(null);nav('dashboard')}
+  async function handleAuthSubmit(event){event.preventDefault();event.stopImmediatePropagation();clearAlert();const mode=$('.auth-tab.active')?.dataset.authMode||'signin',name=$('#auth-name')?.value.trim()||'',email=$('#auth-email')?.value.trim()||'',password=$('#auth-password')?.value||'',confirm=$('#auth-confirm-password')?.value||'';if(!/^\S+@\S+\.\S+$/.test(email))return alertBox('Please enter a valid email address.');if(password.length<6)return alertBox('Password must be at least 6 characters.');if(mode==='signup'&&!name)return alertBox('Please enter your full name.');if(mode==='signup'&&password!==confirm)return alertBox('Passwords do not match.');setLoading(true);try{if(mode==='signup'){const {data,error}=await client.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:location.origin+location.pathname}});if(error)throw error;if(data.session){alertBox('Account created successfully. You are now signed in.','success');toast(`Welcome, ${name}.`);setTimeout(()=>nav('dashboard'),500)}else alertBox('Account created. Check your email to verify your address before signing in.','success')}else{const {data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;alertBox('Signed in successfully.','success');toast(`Welcome back, ${data.user?.user_metadata?.full_name||email}.`);setTimeout(()=>nav('dashboard'),400)}}catch(error){console.error(error);const m=String(error?.message||'Authentication failed.');if(/invalid login credentials/i.test(m))alertBox('Incorrect email or password.');else if(/user already registered/i.test(m))alertBox('An account with this email already exists. Choose Sign in above.');else alertBox(m)}finally{setLoading(false)}}
+  async function handleForgotSubmit(e){e.preventDefault();e.stopImmediatePropagation();const email=$('#forgot-email')?.value.trim()||'',err=$('#forgot-error');if(!/^\S+@\S+\.\S+$/.test(email)){if(err)err.textContent='Enter a valid email address.';return}try{const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)throw error;$('#forgot-modal')?.classList.add('hidden');alertBox('Password reset instructions have been sent to your email.','success');toast('Password reset email sent.')}catch(x){if(err)err.textContent=x.message||'Unable to send reset instructions.'}}
+  async function handleGoogle(e){e.preventDefault();e.stopImmediatePropagation();clearAlert();try{const {error}=await client.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)throw error}catch(x){alertBox(x.message||'Google sign-in is unavailable. Enable Google in Supabase Authentication → Providers.')}}
+  function addAuthStyles(){if($('#auth-polish'))return;const s=document.createElement('style');s.id='auth-polish';s.textContent=`.signed-in-card{padding:30px;border:1px solid var(--jss-border,#e4eaf2);border-radius:16px;background:#fff;box-shadow:0 18px 50px rgba(11,31,58,.08);text-align:center}.signed-in-card.hidden{display:none}.signed-in-icon{width:56px;height:56px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e8f8ef;color:#20824a;font-size:26px;font-weight:800}.signed-in-card h2{margin:4px 0 8px;font:700 28px/1.1 Fraunces,Georgia,serif}.signed-in-email{font-weight:700;margin:0}.signed-in-copy{color:#718599;font-size:13px;line-height:1.6;max-width:480px;margin:12px auto}.signed-in-actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:20px}.danger-button{color:#b33a36!important}.topbar-actions .secondary-button#supabase-logout{display:none!important}`;document.head.appendChild(s)}
+  function syncAuthUI(session){const user=session?.user||null;updateProfile(user);syncSignedInCard(user);if(user)$$('.auth-tab,.google-button,#google-auth').forEach(e=>e.closest('.auth-tab')?.classList.remove('active'));}
+  function install(){document.addEventListener('submit',e=>{if(e.target?.id==='auth-form')handleAuthSubmit(e);if(e.target?.id==='forgot-form')handleForgotSubmit(e)},true);document.addEventListener('click',e=>{const tab=e.target.closest?.('.auth-tab');if(tab)setMode(tab.dataset.authMode);if(e.target.closest?.('#google-auth'))handleGoogle(e)},true)}
+  async function init(){addAuthStyles();install();const {data}=await client.auth.getSession();syncAuthUI(data.session);client.auth.onAuthStateChange((_event,session)=>syncAuthUI(session));}
   init();
 })();
